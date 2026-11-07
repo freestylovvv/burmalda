@@ -48,7 +48,7 @@
       authorized_key:
         user: root
         state: present
-        key: "{{ lookup('file', lookup('env', 'HOME') + '.ssh/id_ed25519.pub') }}"
+        key: "{{ lookup('file', lookup('env', 'HOME') + '/.ssh/id_ed25519.pub') }}"
 
     - name: 6. Disable password authentication in SSH config for security
       lineinfile:
