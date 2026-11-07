@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 400px; margin: 30px auto; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155;">
+    <h2 style="margin-top: 0; color: #38bdf8;">Профиль пользователя</h2>
+    
+    <form method="POST" style="margin-bottom: 20px;">
+        <input type="hidden" name="action" value="change_password">
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; color: #94a3b8;">Новый пароль</label>
+            <input type="password" name="new_password" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box;">
+        </div>
+        <button type="submit" class="btn" style="width: 100%;">Изменить пароль</button>
+    </form>
+
+    <hr style="border-color: #334155; margin: 20px 0;">
+
+    <form method="POST" onsubmit="return confirm('Вы уверены, что хотите удалить аккаунт?');">
+        <input type="hidden" name="action" value="delete_account">
+        <button type="submit" class="btn btn-danger" style="width: 100%;">Удалить аккаунт</button>
+    </form>
+</div>
+{% endblock %}

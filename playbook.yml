@@ -1,0 +1,117 @@
+---
+- name: Full server provisioning, hardening and application deployment
+  hosts: servers
+  become: yes  
+
+  tasks:
+    - name: 1. Update apt package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: 2. Install essential system utilities
+      apt:
+        name:
+          - curl
+          - git
+          - ufw
+          - htop
+        state: present
+
+    - name: 3. Configure UFW default policies (deny incoming, allow outgoing)
+      ufw:
+        state: enabled
+        direction: incoming
+        policy: deny
+
+    - name: 3.1. Ensure outgoing traffic is allowed
+      ufw:
+        direction: outgoing
+        policy: allow
+
+    - name: 4. Allow SSH (port 22) through firewall
+      ufw:
+        rule: allow
+        port: '22'
+        proto: tcp
+
+    - name: 5. Set authorized SSH key for root user from local machine
+      authorized_key:
+        user: root
+        state: present
+        key: "{{ lookup('file', lookup('env', 'HOME') + '.ssh/id_ed25519.pub') }}"
+
+    - name: 6. Disable password authentication in SSH config for security
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+      notify: Restart sshd
+
+    - name: 7. Install Docker dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - gnupg
+        state: present
+
+    - name: 8. Add Docker official GPG key
+      shell: |
+        install -m 0755 -d /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        chmod a+r /etc/apt/keyrings/docker.gpg
+      args:
+        creates: /etc/apt/keyrings/docker.gpg
+
+    - name: 9. Add Docker repository to apt sources
+      shell: |
+        echo \
+          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+          $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+          tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    - name: 10. Install Docker Engine and Docker Compose plugin
+      apt:
+        update_cache: yes
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+
+
+    - name: 11. Create directory for burmalda project on remote server
+      file:
+        path: /opt/burmalda
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: 12. Copy project files from local machine to server
+      copy:
+        src: "./burmalda/"  
+        dest: /opt/burmalda/
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: 13. Run Docker Compose to build and start containers
+      community.docker.docker_compose_v2:
+        project_src: /opt/burmalda
+        state: present
+        build: always
+      register: compose_result
+
+    - name: Show Docker Compose output
+      debug:
+        var: compose_result
+
+  handlers:
+    - name: Restart sshd
+      service:
+        name: ssh
+        state: restarted

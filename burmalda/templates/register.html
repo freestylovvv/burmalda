@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 400px; margin: 50px auto; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155;">
+    <h2 style="margin-top: 0; color: #38bdf8;">Регистрация в burmalda</h2>
+    <p style="font-size: 0.85rem; color: #94a3b8;">Подсказка: если указать пароль <b>burmalda</b>, аккаунт автоматически получит права администратора!</p>
+    <form method="POST">
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; color: #94a3b8;">Имя пользователя</label>
+            <input type="text" name="username" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box;">
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; color: #94a3b8;">Пароль</label>
+            <input type="password" name="password" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box;">
+        </div>
+        <button type="submit" class="btn" style="width: 100%;">Зарегистрироваться</button>
+    </form>
+</div>
+{% endblock %}

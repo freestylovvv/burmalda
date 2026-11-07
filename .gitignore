@@ -1,0 +1,11 @@
+
+.ansible/
+*.retry
+*.pyc
+__pycache__/
+
+
+*.pem
+id_ed25519
+id_rsa
+

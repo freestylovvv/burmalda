@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>burmalda store</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 0; }
+        header { background: #1e293b; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #38bdf8; text-decoration: none; text-transform: lowercase; }
+        nav a { color: #94a3b8; text-decoration: none; margin-left: 20px; font-weight: 500; transition: color 0.2s; }
+        nav a:hover { color: #38bdf8; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
+        .flash { background: #334155; border-left: 4px solid #38bdf8; padding: 10px 15px; margin-bottom: 20px; border-radius: 4px; }
+        .btn { background: #38bdf8; color: #0f172a; padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #7dd3fc; }
+        .btn-danger { background: #ef4444; color: #fff; }
+        .btn-danger:hover { background: #f87171; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{{ url_for('index') }}" class="logo">burmalda</a>
+        <nav>
+            <a href="{{ url_for('index') }}">Каталог</a>
+            <a href="{{ url_for('cart') }}">Корзина</a>
+            {% if session.get('user_id') %}
+                {% if session.get('is_admin') %}
+                    <a href="{{ url_for('admin') }}" style="color: #f59e0b;">Админка</a>
+                {% endif %}
+                <a href="{{ url_for('profile') }}">Профиль ({{ session.get('username') }})</a>
+                <a href="{{ url_for('logout') }}">Выйти</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Войти</a>
+                <a href="{{ url_for('register') }}">Регистрация</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

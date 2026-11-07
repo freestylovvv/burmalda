@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 500px; margin: 30px auto; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155;">
+    <h2 style="margin-top: 0; color: #f59e0b;">Админ-панель burmalda</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; color: #94a3b8;">Название товара</label>
+            <input type="text" name="title" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box;">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; color: #94a3b8;">Описание</label>
+            <textarea name="description" rows="3" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box;"></textarea>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; color: #94a3b8;">Цена (₽)</label>
+            <input type="number" step="0.01" name="price" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; box-sizing: border-box;">
+        </div>
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; color: #94a3b8;">Фото товара (картинка)</label>
+            <input type="file" name="image" accept="image/*" required style="color: #94a3b8;">
+        </div>
+        <button type="submit" class="btn" style="width: 100%; background: #f59e0b; color: #0f172a;">Добавить товар</button>
+    </form>
+</div>
+{% endblock %}

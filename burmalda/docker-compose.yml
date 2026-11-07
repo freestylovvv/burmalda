@@ -1,0 +1,29 @@
+services:
+  web:
+    build: .
+    container_name: burmalda_app
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+      - /app/venv
+    environment:
+      - DATABASE_URL=postgresql://postgres:secretpassword@db:5432/burmalda_db
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    container_name: burmalda_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: burmalda_db
+    
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

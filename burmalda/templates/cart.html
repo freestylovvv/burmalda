@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 600px; margin: 30px auto; background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #334155;">
+    <h2 style="margin-top: 0; color: #38bdf8;">Корзина burmalda</h2>
+    
+    {% if products %}
+        <ul style="list-style: none; padding: 0;">
+            {% for prod in products %}
+            <li style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px 15px; margin-bottom: 10px; border-radius: 6px;">
+                <span>{{ prod[1] }}</span>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="color: #34d399; font-weight: bold;">{{ prod[3] }} ₽</span>
+                    <a href="{{ url_for('remove_from_cart', product_id=prod[0]) }}" class="btn" style="background: #ef4444; padding: 4px 10px; font-size: 0.8rem;">Удалить</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; font-size: 1.2rem;">
+            <b>Итого:</b>
+            <span style="color: #34d399; font-weight: bold;">{{ total }} ₽</span>
+        </div>
+        
+        <!-- Кнопка оформления заказа через POST-запрос -->
+        <form action="{{ url_for('checkout') }}" method="POST" style="margin-top: 20px;">
+            <button type="submit" class="btn" style="width: 100%; text-align: center; box-sizing: border-box;">Оформить заказ</button>
+        </form>
+    {% else %}
+        <p style="color: #94a3b8;">Ваша корзина пуста.</p>
+    {% endif %}
+</div>
+{% endblock %}
