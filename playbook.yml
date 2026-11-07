@@ -166,3 +166,11 @@
       service:
         name: fail2ban
         state: restarted
+
+    - name: Copy .env file to server
+      copy:
+        src: .env
+        dest: /opt/burmalda/.env
+        owner: root
+        group: root
+        mode: '0600'

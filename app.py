@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-app.secret_key = 'burmalda-super-secret-key-change-it-in-production'
+app.secret_key = os.environ.get('SECRET_KEY', 'default-fallback-key')
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
