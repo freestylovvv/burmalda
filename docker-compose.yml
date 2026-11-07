@@ -20,11 +20,21 @@ services:
     env_file:
       - .env
     volumes:
-      - static_uploads:/app/static/uploads  
+      - static_uploads:/app/static/uploads
     depends_on:
       db:
         condition: service_healthy
 
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: always
+    ports:
+      - "3001:3001"
+    volumes:
+      - uptime_kuma_data:/app/data
+
 volumes:
   pgdata:
-  static_uploads:  
+  static_uploads:
+  uptime_kuma_data:
