@@ -19,9 +19,12 @@ services:
       - "5000:5000"
     env_file:
       - .env
+    volumes:
+      - static_uploads:/app/static/uploads  
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   pgdata:
+  static_uploads:  
