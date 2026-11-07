@@ -10,3 +10,4 @@ id_ed25519
 id_rsa
 
 hosts.ini
+*.pub
