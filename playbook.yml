@@ -1,7 +1,7 @@
 ---
 - name: Full server provisioning, hardening and application deployment
   hosts: servers
-  become: yes  
+  become: yes  # Выполнять задачи с правами суперпользователя (root)
 
   tasks:
     - name: 1. Update apt package cache
@@ -34,6 +34,15 @@
         rule: allow
         port: '22'
         proto: tcp
+
+    - name: 4.1. Allow HTTP (port 80) and HTTPS (port 443) for Nginx
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop:
+        - '80'
+        - '443'
 
     - name: 5. Set authorized SSH key for root user from local machine
       authorized_key:
@@ -82,6 +91,39 @@
           - docker-compose-plugin
         state: present
 
+    - name: 10.1. Install Nginx and Fail2ban
+      apt:
+        name:
+          - nginx
+          - fail2ban
+        state: present
+
+    - name: 10.2. Ensure Nginx and Fail2ban are enabled and running
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - nginx
+        - fail2ban
+
+    - name: 10.3. Copy Nginx configuration file
+      copy:
+        src: ./configs/nginx.conf
+        dest: /etc/nginx/sites-available/default
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Reload nginx
+
+    - name: 10.4. Copy Fail2ban configuration file
+      copy:
+        src: ./configs/jail.local
+        dest: /etc/fail2ban/jail.local
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart fail2ban
 
     - name: 11. Create directory for burmalda project on remote server
       file:
@@ -91,13 +133,12 @@
         group: root
         mode: '0755'
 
-    - name: 12. Copy project files from local machine to server
-      copy:
-        src: "./burmalda/"  
-        dest: /opt/burmalda/
-        owner: root
-        group: root
-        mode: '0644'
+    - name: 12. Clone burmalda repository from GitHub
+      git:
+        repo: 'https://github.com/freestylovvv/burmalda.git'
+        dest: /opt/burmalda
+        version: main
+        force: yes
 
     - name: 13. Run Docker Compose to build and start containers
       community.docker.docker_compose_v2:
@@ -114,4 +155,14 @@
     - name: Restart sshd
       service:
         name: ssh
+        state: restarted
+
+    - name: Reload nginx
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: Restart fail2ban
+      service:
+        name: fail2ban
         state: restarted
