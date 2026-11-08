@@ -1,7 +1,9 @@
----
 - name: Full server provisioning, hardening and application deployment
   hosts: servers
-  become: yes  # Выполнять задачи с правами суперпользователя (root)
+  become: yes  
+  vars:
+    domain_name: "mellstroy-burmalda.ru"
+    admin_email: "svyatoslovv@gmail.com"
 
   tasks:
     - name: 1. Update apt package cache
@@ -9,13 +11,15 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: 2. Install essential system utilities
+    - name: 2. Install essential system utilities and Certbot
       apt:
         name:
           - curl
           - git
           - ufw
           - htop
+          - certbot
+          - python3-certbot-nginx
         state: present
 
     - name: 3. Configure UFW default policies (deny incoming, allow outgoing)
@@ -107,13 +111,36 @@
         - nginx
         - fail2ban
 
-    - name: 10.3. Copy Nginx configuration file
-      copy:
-        src: ./configs/nginx.conf
-        dest: /etc/nginx/sites-available/default
+    - name: 10.3. Deploy Nginx configuration from template
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/sites-available/{{ domain_name }}
         owner: root
         group: root
         mode: '0644'
+      notify: Reload nginx
+
+    - name: 10.3.1. Enable Nginx site by creating symlink
+      file:
+        src: /etc/nginx/sites-available/{{ domain_name }}
+        dest: /etc/nginx/sites-enabled/{{ domain_name }}
+        state: link
+      notify: Reload nginx
+
+    - name: 10.3.2. Ensure default Nginx site is disabled to avoid conflicts
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Reload nginx
+
+    - name: 10.3.3. Obtain SSL certificate via Certbot (non-interactive)
+      command: >
+        certbot --nginx --non-interactive --agree-tos
+        -m {{ admin_email }}
+        -d {{ domain_name }} -d www.{{ domain_name }}
+        --redirect
+      args:
+        creates: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
       notify: Reload nginx
 
     - name: 10.4. Copy Fail2ban configuration file
@@ -174,5 +201,3 @@
       service:
         name: fail2ban
         state: restarted
-
-    
